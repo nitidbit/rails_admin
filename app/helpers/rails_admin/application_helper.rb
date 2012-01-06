@@ -74,7 +74,7 @@ module RailsAdmin
     # the icon shown beside every entry in the list view
     def action_icon link, icon, text
       icon_path = "/stylesheets/rails_admin/theme/activo/images/icons/24/%s.png"
-      icon_change = "this.src='#{icon_path}'"
+      icon_change = "this.src='#{image_path(icon_path)}'"
       link_to link do
         image_tag (icon_path % icon),
           :alt => text, :title => text,
@@ -216,7 +216,7 @@ module RailsAdmin
         t('home.name')
       end
     end
-    
+
     def messages_and_help_for field
       tags = []
       if field.has_errors?
@@ -225,11 +225,11 @@ module RailsAdmin
       tags << content_tag(:p, field.help, :class => "help")
       tags.join("\n").html_safe
     end
-    
+
     def field_wrapper_for form, field, opts={}
       opts = opts.reverse_merge(:label => true, :messages_and_help => true)
-      
-      content_tag(:div, :class => "field #{field.dom_id}") do
+
+      content_tag(:div, :class => "field #{field.dom_id}", :id => field.dom_id + '_field') do
         concat form.label(field.method_name, field.label) if opts[:label]
         yield
         concat messages_and_help_for(field) if opts[:messages_and_help]
@@ -291,8 +291,8 @@ module RailsAdmin
 
         vt = VIEW_TYPES[view]
 
-        # TODO: write tests and enable authorization checking:
-        # if vt.authorization.nil? || authorized?(vt.authorization, abstract_model, object)
+        # TODO: write tests
+        if authorized?(view, abstract_model, object)
           css_classes = []
           css_classes << "first" if view == :dashboard
           css_classes << "active" if active
@@ -301,10 +301,11 @@ module RailsAdmin
             path_method = vt.path_method || view
             link_to I18n.t("admin.breadcrumbs.#{view}").capitalize, self.send("rails_admin_#{path_method}_path")
           end
-        # end
+         end
 
       end
 
 
   end
 end
+
